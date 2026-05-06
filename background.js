@@ -317,6 +317,29 @@ function score(ctx) {
   /* Infinite scroll is the probable cause when pushState is involved */
   const possibleInfiniteScroll = historyFloodingSuspected && ps > 0;
 
+  /*
+   * A "suspicious signal" is anything that could explain why Back failed.
+   * If Back failed but NONE of these are present the test is inconclusive —
+   * the test environment itself (tab timing, CSP, pre-existing history stack)
+   * may have interfered rather than the page hijacking the Back button.
+   */
+  const hasAnySuspiciousSignal =
+    ps > 0 ||
+    rs > 0 ||
+    pop > 0 ||
+    bu > 0 ||
+    wo > 0 ||
+    session.overlayDetected ||
+    urlChangesAfterBack.length > 0 ||
+    newTabsOpened > 0 ||
+    redirectedOut ||
+    (historyDelta !== null && historyDelta > 0) ||
+    totalUrlChanges > 0 ||
+    hasSuspiciousScripts;
+
+  /* Inconclusive: back failed, but nothing to explain why */
+  const isInconclusive = !isReferrer && !hasAnySuspiciousSignal;
+
   /* ---------------------------------------------------------------- */
   /* Scoring                                                            */
   /* ---------------------------------------------------------------- */
@@ -342,7 +365,9 @@ function score(ctx) {
   }
 
   /* ---- HIGH ---- */
-  if (!isReferrer && !redirectedOut && risk < 2) {
+  /* Skip this block entirely when the result is inconclusive — no supporting
+     signals means we cannot attribute the Back failure to the page itself. */
+  if (!isReferrer && !redirectedOut && risk < 2 && !isInconclusive) {
     if (stayedOnSite) {
       reasons.push('Back button did not return to the previous page — user remained on the tested site');
       risk = Math.max(risk, 2);
@@ -435,11 +460,20 @@ function score(ctx) {
     reasons.push('Back navigation returned to the expected previous page with no suspicious behavior detected');
   }
 
+  /* ---- INCONCLUSIVE (back failed but zero supporting signals) ---- */
+  if (isInconclusive) {
+    reasons.push(
+      'Back navigation did not return to the expected referrer, but no suspicious signals were detected ' +
+      '(pushState: 0, replaceState: 0, redirects: 0, overlays: No, new tabs: 0, URL changes: 0, ' +
+      'history.length delta: 0). This may be a test-environment issue rather than back button hijacking.'
+    );
+  }
+
   /* ---------------------------------------------------------------- */
   /* Build level label and context-sensitive text                       */
   /* ---------------------------------------------------------------- */
   const LEVELS = ['Safe', 'Medium Risk', 'High Risk', 'Critical'];
-  const level  = LEVELS[risk];
+  const level  = isInconclusive ? 'Test Inconclusive' : LEVELS[risk];
 
   const MANUAL_CHECK_TIP =
     'Manual check: open the article in a fresh tab, run ' +
@@ -462,6 +496,10 @@ function score(ctx) {
     'Critical':
       'Critical back button hijacking detected. The page triggered a popup, new tab, external redirect, ' +
       'or navigation loop when Back was pressed — trapping the user.',
+    'Test Inconclusive':
+      'The Back test did not return to the expected referrer, but the extension did not detect any clear ' +
+      'browser history manipulation, redirect, popup, or overlay. This may be a test-environment issue ' +
+      'or a behavior that requires manual validation.',
   };
 
   const causeMap = {
@@ -469,6 +507,10 @@ function score(ctx) {
     'Medium Risk': 'A third-party ad, infinite scroll, or analytics script may be using history.pushState for legitimate purposes. Behavior appears controlled.',
     'High Risk':   'A third-party ad, popup, recommendation, or navigation script is likely manipulating browser history to delay or prevent Back navigation.',
     'Critical':    'A third-party ad, interstitial, push-notification, or redirect script is actively hijacking the Back button, opening popups, or creating navigation loops.',
+    'Test Inconclusive':
+      'No browser history manipulation, redirect, popup, overlay, or suspicious script behavior was detected. ' +
+      'The Back navigation failure may be caused by the extension test environment (tab timing, pre-existing ' +
+      'history stack, or CSP restrictions) rather than the page itself.',
   };
 
   const actionMap = {
@@ -480,6 +522,10 @@ function score(ctx) {
       'Ask the development and ad-ops teams to audit scripts using history.pushState, history.replaceState, popstate, beforeunload, redirects, or interstitial logic.',
     'Critical':
       'Immediately investigate and remove or reconfigure the scripts causing back button hijacking. This is a serious UX and potential SEO issue. Escalate to development and ad-ops teams.',
+    'Test Inconclusive':
+      'Manually test the URL from a Google search result or mobile browser and check DevTools history ' +
+      'behavior before escalating to development. In DevTools, open the Console and run ' +
+      'console.log(window.history.length) before and after pressing Back to observe any change.',
   };
 
   /* Override with flooding-specific, SEO-friendly text where relevant */

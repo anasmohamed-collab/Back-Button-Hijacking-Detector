@@ -265,6 +265,7 @@ body {
 .badge-medium      { background: var(--yellow-lt); color: var(--yellow); }
 .badge-high        { background: var(--orange-lt); color: var(--orange); }
 .badge-critical    { background: var(--red-lt);    color: var(--red); }
+.badge-inconclusive{ background: #e0e7ff;           color: #3730a3; }
 
 /* ---- Result blocks ---- */
 .result-summary {

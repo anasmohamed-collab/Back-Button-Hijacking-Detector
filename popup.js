@@ -227,10 +227,11 @@ function setProgressPhase(phase) {
 function renderResult(result) {
   /* Badge */
   const BADGE_CLASS = {
-    'Safe':        'badge-safe',
-    'Medium Risk': 'badge-medium',
-    'High Risk':   'badge-high',
-    'Critical':    'badge-critical',
+    'Safe':             'badge-safe',
+    'Medium Risk':      'badge-medium',
+    'High Risk':        'badge-high',
+    'Critical':         'badge-critical',
+    'Test Inconclusive':'badge-inconclusive',
   };
   resultBadge.textContent = result.level;
   resultBadge.className   = 'result-badge ' + (BADGE_CLASS[result.level] || '');
