@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Back Button Hijacking Detector",
+  "version": "1.0.0",
+  "description": "Offline SEO QA tool that detects back button hijacking on web pages. No external APIs. All testing runs locally.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["referrer.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
