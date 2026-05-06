@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Back Button Hijacking Detector</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="36" height="36" rx="8" fill="#1e40af"/>
+        <!-- back arrow -->
+        <path d="M8 18 L18 10 L18 14 L28 14 L28 22 L18 22 L18 26 Z" fill="white"/>
+        <!-- warning badge -->
+        <circle cx="28" cy="10" r="7" fill="#f59e0b"/>
+        <rect x="27" y="6" width="2" height="5" rx="1" fill="#1e40af"/>
+        <circle cx="28" cy="13" r="1" fill="#1e40af"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1 class="header-title">Back Button Hijacking</h1>
+      <p class="header-subtitle">SEO QA Detector</p>
+    </div>
+  </header>
+
+  <!-- ===== URL bar ===== -->
+  <section class="url-bar" id="urlBar">
+    <span class="url-label">Testing:</span>
+    <span class="url-value" id="urlDisplay" title="">—</span>
+  </section>
+
+  <!-- ===== Idle / start screen ===== -->
+  <section class="panel" id="panelIdle">
+    <p class="idle-text">
+      Paste any article URL to test, or leave it as-is to use the current tab.
+      A temporary tab will open and run the check automatically.
+    </p>
+
+    <div class="url-input-group">
+      <label class="url-input-label" for="inputUrl">URL to test</label>
+      <input
+        class="url-input"
+        type="url"
+        id="inputUrl"
+        placeholder="https://example.com/article"
+        spellcheck="false"
+        autocomplete="off"
+      />
+      <p class="url-input-hint" id="urlInputHint"></p>
+    </div>
+
+    <button class="btn btn-primary" id="btnStart">Load &amp; Test</button>
+  </section>
+
+  <!-- ===== Progress screen ===== -->
+  <section class="panel hidden" id="panelProgress">
+    <div class="progress-steps" id="progressSteps">
+      <div class="step" data-phase="preparing">
+        <div class="step-dot"></div>
+        <span>Preparing test environment</span>
+      </div>
+      <div class="step" data-phase="loading">
+        <div class="step-dot"></div>
+        <span>Loading page in test tab</span>
+      </div>
+      <div class="step" data-phase="monitoring">
+        <div class="step-dot"></div>
+        <span>Monitoring scripts &amp; history API</span>
+      </div>
+      <div class="step" data-phase="testing">
+        <div class="step-dot"></div>
+        <span>Triggering Back navigation</span>
+      </div>
+      <div class="step" data-phase="analyzing">
+        <div class="step-dot"></div>
+        <span>Analyzing result</span>
+      </div>
+    </div>
+    <div class="progress-note" id="progressNote">Starting…</div>
+    <button class="btn btn-ghost" id="btnCancel">Cancel</button>
+  </section>
+
+  <!-- ===== Result screen ===== -->
+  <section class="panel hidden" id="panelResult">
+
+    <!-- Risk badge -->
+    <div class="result-badge-wrap">
+      <div class="result-badge" id="resultBadge">—</div>
+    </div>
+
+    <!-- Summary -->
+    <p class="result-summary" id="resultSummary"></p>
+
+    <!-- Cause + Action -->
+    <div class="result-block" id="resultCauseBlock">
+      <div class="result-block-label">Likely Cause</div>
+      <p id="resultCause"></p>
+    </div>
+    <div class="result-block" id="resultActionBlock">
+      <div class="result-block-label">Recommended Action</div>
+      <p id="resultAction"></p>
+    </div>
+
+    <!-- Reasons list -->
+    <div class="result-block" id="resultReasonsBlock">
+      <div class="result-block-label">Detection Signals</div>
+      <ul class="reasons-list" id="reasonsList"></ul>
+    </div>
+
+    <!-- Dev details toggle -->
+    <button class="btn btn-ghost expand-btn" id="btnDevDetails">
+      <span id="devToggleLabel">Show Developer Details ▼</span>
+    </button>
+    <div class="dev-details hidden" id="devDetails">
+      <table class="details-table" id="detailsTable"></table>
+
+      <div class="script-section" id="scriptSection">
+        <div class="result-block-label">Third-Party Script Summary</div>
+        <table class="details-table" id="scriptsTable"></table>
+      </div>
+
+      <div class="script-section" id="suspiciousSection">
+        <div class="result-block-label">Flagged Scripts</div>
+        <ul class="script-list" id="suspiciousList"></ul>
+      </div>
+    </div>
+
+    <!-- Actions row -->
+    <div class="action-row">
+      <button class="btn btn-ghost" id="btnCopy">Copy Report</button>
+      <button class="btn btn-ghost" id="btnDownload">Download JSON</button>
+      <button class="btn btn-primary" id="btnRetest">Run Again</button>
+    </div>
+
+  </section>
+
+  <!-- ===== Error screen ===== -->
+  <section class="panel hidden" id="panelError">
+    <div class="error-icon">⚠</div>
+    <p class="error-msg" id="errorMsg">An unexpected error occurred.</p>
+    <button class="btn btn-primary" id="btnRetryError">Try Again</button>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

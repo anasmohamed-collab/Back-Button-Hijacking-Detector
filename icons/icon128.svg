@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="22" fill="#1e40af"/>
+  <!-- Back arrow (white) pointing left -->
+  <path d="M22 64 L54 32 L54 48 L98 48 L98 80 L54 80 L54 96 Z" fill="white"/>
+  <!-- Warning badge (orange circle, top-right) -->
+  <circle cx="96" cy="32" r="22" fill="#f59e0b"/>
+  <!-- Exclamation stem -->
+  <rect x="93.5" y="19" width="5" height="14" rx="2.5" fill="#1e40af"/>
+  <!-- Exclamation dot -->
+  <circle cx="96" cy="40" r="3.5" fill="#1e40af"/>
+</svg>
